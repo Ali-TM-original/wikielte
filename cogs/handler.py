@@ -165,11 +165,11 @@ class Handler(commands.Cog):
             pass
 
         else:
-            chan = self.bot.get_channel(os.getenv("ERRORLOGS")) # here use env
+            chan = self.bot.get_channel(int(os.getenv("ERRORLOGS")))
             print(error)
             if ctx.author:
                 auth = f"{ctx.author.name}#{ctx.author.discriminator}"
-                command = ctx.command.qualified_name
+                command = ctx.command.qualified_name if ctx.command else "Unknown Command"
                 em = discord.Embed(title="Error",
                                    description=f"Errored in **{ctx.guild.name}** by : **{auth}** with **{command}**\n```py\n{error}\n```",
                                    color=0x2F3136)

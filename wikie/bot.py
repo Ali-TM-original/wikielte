@@ -6,6 +6,7 @@ from typing import List
 import aiohttp
 import discord
 from discord.ext import commands
+from lib import DatabaseClient
 
 
 async def get_prefix(bot, message: discord.Message) -> List[str]:
@@ -37,6 +38,7 @@ class WikiElteBot(commands.AutoShardedBot):
         self.repo: str = "https://github.com/Ali-TM-original"
         self.launch_time: datetime = datetime.utcnow()
         self.owner_id = os.getenv('OWNER')
+        self.db = DatabaseClient()
 
     async def setup_hook(self):
         self.connector = aiohttp.TCPConnector(limit=200)

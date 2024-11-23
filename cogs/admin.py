@@ -24,7 +24,7 @@ def get_size(bytes, suffix="B"):
         bytes /= factor
 
 
-class Fun(commands.Cog):
+class Admin(commands.Cog):
     def __init__(self, bot: WikiElteBot):
         self.bot: WikiElteBot = bot
 
@@ -69,14 +69,13 @@ class Fun(commands.Cog):
 
     @commands.command(name="sync")
     async def sync(self, ctx):
-        synced = await self.bot.tree.sync()
-        print(f"Synced {len(synced)} command(s).")
+        synced = await self.bot.tree.sync(guild=ctx.guild)
+        await ctx.send(f"Creating {len(synced)} slash command(s).")
 
     @app_commands.command(name="ping", description="test slash command")
     async def ping(self, interaction: discord.Interaction):
         bot_latency = round(self.bot.latency * 1000)
         await interaction.response.send_message(f"Pong! {bot_latency} ms.")
-
 
     @app_commands.command(name="botinfo", description="Tells Information About the bot")
     @is_team()
@@ -109,4 +108,4 @@ class Fun(commands.Cog):
 
 async def setup(bot):
     # finally, adding the cog to the bot
-    await bot.add_cog(Fun(bot=bot))
+    await bot.add_cog(Admin(bot=bot))
