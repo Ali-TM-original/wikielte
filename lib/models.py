@@ -4,7 +4,6 @@ from bson.objectid import ObjectId
 
 
 class ResourceModel(BaseModel):
-    id: Optional[ObjectId] = Field(alias="_id", default=None)
     name: str
     course: str
     description: str

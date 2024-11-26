@@ -1,10 +1,9 @@
 import datetime
 import os
-
 import discord
-from discord import app_commands
 import humanize
 import psutil
+from discord import app_commands
 from discord.ext import commands
 from wikie import WikiElteBot
 
@@ -69,6 +68,8 @@ class Admin(commands.Cog):
 
     @commands.command(name="sync")
     async def sync(self, ctx):
+        print(ctx.guild)
+        self.bot.tree.copy_global_to(guild=ctx.guild)
         synced = await self.bot.tree.sync(guild=ctx.guild)
         await ctx.send(f"Creating {len(synced)} slash command(s).")
 

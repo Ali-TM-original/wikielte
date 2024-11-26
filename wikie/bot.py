@@ -1,12 +1,14 @@
 import os
 import dotenv
 import sys
-from datetime import datetime
-from typing import List
 import aiohttp
 import discord
+from datetime import datetime
+from typing import List
 from discord.ext import commands
+from nudenet import NudeDetector
 from lib import DatabaseClient
+from asyncdagpi import Client
 
 
 async def get_prefix(bot, message: discord.Message) -> List[str]:
@@ -39,6 +41,8 @@ class WikiElteBot(commands.AutoShardedBot):
         self.launch_time: datetime = datetime.utcnow()
         self.owner_id = os.getenv('OWNER')
         self.db = DatabaseClient()
+        self.detector = NudeDetector()
+        self.dagpi = None
 
     async def setup_hook(self):
         self.connector = aiohttp.TCPConnector(limit=200)
@@ -48,13 +52,13 @@ class WikiElteBot(commands.AutoShardedBot):
             connector=self.connector,
             timeout=aiohttp.ClientTimeout(total=60),
         )
+        self.dagpi = Client(os.getenv('DAGPI'))
         for file in os.listdir("./cogs"):
             if file.endswith(".py"):
                 try:
                     await self.load_extension(f"cogs.{file[:-3]}")
                 except Exception:
                     print(f"Could not load {file[:-3]}")
-
 
     async def on_ready(self):
         print(f"{self.user.display_name} is connected to server.")
