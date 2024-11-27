@@ -26,7 +26,6 @@ class Resources(commands.Cog):
         image_extensions = [".png", ".jpg", ".jpeg"]
         fileID = None
         if file is not None and any(file.filename.lower().endswith(ext) for ext in image_extensions):
-            print("Here")
             try:
                 # Read the file contents
                 file_data = await file.read()
@@ -39,7 +38,6 @@ class Resources(commands.Cog):
                 os.remove(f"./temp/{file.filename}")
                 if not result:
                     fileID = await self.bot.db.uploadFile(await file.read(), file.filename)
-                    print("File is save for work")
                 else:
                     return await interaction.response.send_message("Cannot Create File avoid sending NSFW content")
             except Exception as e:
@@ -58,6 +56,8 @@ class Resources(commands.Cog):
             res = await self.bot.db.getAllResources()
         else:
             res = await self.bot.db.filterByCourse(course)
+        if not res:
+            return await interaction.response.send_message("Could not find course")
         data = [f"**Name**: {i['name']}, **Course**: {i['course']}" for i in res]
         L = 10
 
@@ -73,12 +73,30 @@ class Resources(commands.Cog):
 
         await Pagination(interaction, get_page).navegate()
 
+    @app_commands.command(name="deleteresource", description="This Commands deletes a resource")
+    async def deleteresource(self, interaction: discord.Interaction, name: str, course:str):
+        if await self.bot.db.deleteOne(name, course, int(interaction.user.id)):
+            return await interaction.response.send_message("Deleted Resource")
+        return await interaction.response.send_message("Could not delete resource")
+
     @app_commands.command(name="getresource", description="This Commands gets individual resources")
     async def getresource(self, interaction: discord.Interaction, name: str, course: str):
-        data = self.bot.db.getOne(name, course)
+        data = await self.bot.db.getOne(name, course)
         if not data:
-            return await interaction.response.send_message("Processing")
-        return await interaction.response.send_message("Error trying to find resource")
+            return await interaction.response.send_message("Resource does not exist")
+        try:
+            f = None
+            if data['fileID'] is not None:
+                meta = await self.bot.db.getFile(ObjectId(data['fileID']))
+                f = discord.File(BytesIO(meta['data']), filename=meta['name'])
+            emb = discord.Embed(title=data.get("name", "No Title"), description=data.get("course", "No Course"))
+            emb.set_author(name=f"Requested by {interaction.user}")
+            emb.add_field(name="Description", value=data.get("description", "No description available"), inline=False)
+            emb.set_footer(text=f"Created by {data.get('creatorName', 'Unknown')}")
+            return await interaction.response.send_message(embed=emb, file=f)
+        except Exception as e:
+            print(e)
+            return await interaction.response.send_message("Failed to fetch data")
 
     @app_commands.command(name="getfile", description="Test Command to get files from database")
     async def getfile(self, interaction: discord.Interaction, file_id: str):
