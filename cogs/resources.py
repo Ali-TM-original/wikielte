@@ -98,12 +98,6 @@ class Resources(commands.Cog):
             print(e)
             return await interaction.response.send_message("Failed to fetch data")
 
-    @app_commands.command(name="getfile", description="Test Command to get files from database")
-    async def getfile(self, interaction: discord.Interaction, file_id: str):
-        meta = await self.bot.db.getFile(ObjectId(file_id))
-        await interaction.response.send_message("Lets Analyze",
-                                                file=discord.File(BytesIO(meta['data']), filename=meta['name']))
-
 
 async def setup(bot):
     # finally, adding the cog to the bot

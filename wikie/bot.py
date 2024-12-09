@@ -57,7 +57,8 @@ class WikiElteBot(commands.AutoShardedBot):
             if file.endswith(".py"):
                 try:
                     await self.load_extension(f"cogs.{file[:-3]}")
-                except Exception:
+                except Exception as e:
+                    print(e)
                     print(f"Could not load {file[:-3]}")
 
     async def on_ready(self):
