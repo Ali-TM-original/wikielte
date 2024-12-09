@@ -1,3 +1,4 @@
+import asyncio
 import os
 import discord
 from discord import app_commands
@@ -16,16 +17,23 @@ class AiCog(commands.Cog):
     async def on_ready(self):
         print(f"Ai Cog Loaded")
 
-    @app_commands.command(name="prompt", description="Process a prompt with OpenAI")
+    @app_commands.command(name="prompt", description="Talk to your AI girlfriend!")
     async def prompt(self, interaction: discord.Interaction, prompt: str):
+        await interaction.response.defer()
         try:
+            # Add personality context to the prompt
+            context = (
+                "You are an old grumpy angry grandpa trying to help the user."
+            )
+            full_prompt = f"{context}\nUser: {prompt}\nLily:"
+
+            # Generate the response
             res = self.model.generate_content(prompt)
-            if not res.text or not res or res.text == '':
-                raise Exception
-            await interaction.response.send_message(res.text)
+            await interaction.followup.send(res.text)
         except Exception as e:
-            # Handle errors and send a friendly message
-            await interaction.response.send_message(f"An error occurred: {str(e)}")
+            error_message = f"An error occurred: {str(e)}"
+            print(error_message)
+            await interaction.followup.send("OOPS an error occured")
 
 
 async def setup(bot):
